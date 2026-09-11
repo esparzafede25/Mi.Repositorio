@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏛️ MI REPOSITORIO — Archivo Cultural Personal
 
-## Getting Started
+Un repositorio vivo para registrar, puntuar y revivir tus **películas**, **videojuegos** y **libros** favoritos con memoria, detalle y estilo.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Características
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- 🎬 **Cinematografía (Películas):** Búsqueda directa integrada con TMDB (The Movie Database), pósters verticales, directores, fecha de visionado, reseñas y puntuación personal.
+- 🎮 **Videojuegos:** Carátulas, plataformas (PC, PlayStation, Nintendo Switch, Xbox, Retro), desarrolladores, horas de juego y estados de completitud.
+- 📚 **Biblioteca (Libros):** Fichas de lectura, autores, citas favoritas, reflexiones personales y fechas de lectura.
+- 🔐 **Autenticación completa:** Registro e inicio de sesión seguros con JWT en cookies HttpOnly y contraseñas hasheadas con bcrypt.
+- 📊 **Panel de Control / Dashboard:** Estadísticas en tiempo real, promedios de calificación y actividad reciente.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Inicio Rápido (Local)
 
-## Learn More
+1. **Instalar dependencias:**
+   ```bash
+   npm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Configurar variables de entorno:**
+   Copia el archivo `.env.example` a `.env`:
+   ```bash
+   cp .env.example .env
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Iniciar la base de datos:**
+   ```bash
+   npx prisma db push
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. **Correr el servidor de desarrollo:**
+   ```bash
+   npm run dev
+   ```
 
-## Deploy on Vercel
+5. Abrir en el navegador: [http://localhost:3000](http://localhost:3000)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🛠️ Tecnologías
+
+- **Next.js 16** (App Router)
+- **React 19**
+- **Prisma ORM** + SQLite
+- **Tailwind CSS v4**
+- **Lucide Icons**
