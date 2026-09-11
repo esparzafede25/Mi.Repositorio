@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(uuid())
+  username     String       @unique
+  email        String       @unique
+  passwordHash String
+  avatar       String?
+  bio          String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  movies       Movie[]
+  videogames   Videogame[]
+  books        Book[]
+  activities   Activity[]
+}
+
+model Movie {
+  id            String    @id @default(uuid())
+  userId        String
+  title         String
+  originalTitle String?
+  year          Int?
+  director      String?
+  genres        String?
+  posterUrl     String?
+  watchedDate   DateTime?
+  rating        Float?
+  status        String    @default("Vista")
+  notes         String?
+  review        String?
+  tags          String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Videogame {
+  id          String    @id @default(uuid())
+  userId      String
+  title       String
+  platform    String?
+  year        Int?
+  developer   String?
+  genres      String?
+  coverUrl    String?
+  playedDate  DateTime?
+  rating      Float?
+  status      String    @default("Terminado")
+  notes       String?
+  review      String?
+  tags        String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Book {
+  id        String    @id @default(uuid())
+  userId    String
+  title     String
+  author    String?
+  year      Int?
+  genre     String?
+  coverUrl  String?
+  readDate  DateTime?
+  rating    Float?
+  status    String    @default("Leído")
+  notes     String?
+  review    String?
+  tags      String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Activity {
+  id         String   @id @default(uuid())
+  userId     String
+  entityType String
+  entityId   String
+  action     String
+  title      String
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
