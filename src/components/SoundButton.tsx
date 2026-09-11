@@ -76,7 +76,7 @@ export default function SoundButton() {
             <div className="flex items-center gap-2">
               <Music className="w-4 h-4 text-amber-400" />
               <span className="text-xs font-bold text-white uppercase tracking-wider">
-                Música Clásica
+                Música Original
               </span>
             </div>
             <button

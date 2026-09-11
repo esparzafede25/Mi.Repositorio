@@ -36,6 +36,7 @@ yarn-error.log*
 
 # sqlite / local databases
 *.db
+*.db.backup
 *.db-journal
 *.sqlite
 *.sqlite3

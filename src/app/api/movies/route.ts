@@ -15,6 +15,10 @@ export async function GET(request: Request) {
     const status = searchParams.get("status")?.trim() || "";
     const director = searchParams.get("director")?.trim() || "";
     const year = searchParams.get("year") ? parseInt(searchParams.get("year")!) : undefined;
+    const favorite = searchParams.get("favorite");
+    const markedMe = searchParams.get("markedMe");
+    const rewatch = searchParams.get("rewatch");
+    const tag = searchParams.get("tag")?.trim() || "";
     const sort = searchParams.get("sort") || "recent";
 
     const whereClause: any = {
@@ -28,11 +32,16 @@ export async function GET(request: Request) {
         { director: { contains: q } },
         { genres: { contains: q } },
         { tags: { contains: q } },
+        { location: { contains: q } },
       ];
     }
 
     if (genre) {
       whereClause.genres = { contains: genre };
+    }
+
+    if (tag) {
+      whereClause.tags = { contains: tag };
     }
 
     if (status) {
@@ -47,16 +56,34 @@ export async function GET(request: Request) {
       whereClause.year = year;
     }
 
+    if (favorite === "true") {
+      whereClause.isFavorite = true;
+    }
+
+    if (markedMe === "true") {
+      whereClause.markedMe = true;
+    }
+
+    if (rewatch === "true") {
+      whereClause.rewatch = true;
+    }
+
     let orderBy: any = { createdAt: "desc" };
     if (sort === "oldest") orderBy = { createdAt: "asc" };
     if (sort === "az") orderBy = { title: "asc" };
     if (sort === "za") orderBy = { title: "desc" };
     if (sort === "rating_desc") orderBy = { rating: "desc" };
     if (sort === "year_desc") orderBy = { year: "desc" };
+    if (sort === "favorite_order") orderBy = [{ favoriteOrder: "asc" }, { rating: "desc" }];
 
     const movies = await prisma.movie.findMany({
       where: whereClause,
       orderBy,
+      include: {
+        moments: {
+          orderBy: { createdAt: "desc" },
+        },
+      },
     });
 
     return NextResponse.json({ movies });
@@ -87,6 +114,12 @@ export async function POST(request: Request) {
       notes,
       review,
       tags,
+      isFavorite = false,
+      markedMe = false,
+      rewatch = false,
+      favoriteOrder,
+      personalPhotos,
+      location,
     } = body;
 
     if (!title || !title.trim()) {
@@ -108,6 +141,12 @@ export async function POST(request: Request) {
         notes: notes?.trim() || null,
         review: review?.trim() || null,
         tags: tags?.trim() || null,
+        isFavorite: Boolean(isFavorite),
+        markedMe: Boolean(markedMe),
+        rewatch: Boolean(rewatch),
+        favoriteOrder: favoriteOrder ? parseInt(favoriteOrder) : null,
+        personalPhotos: personalPhotos || null,
+        location: location?.trim() || null,
       },
     });
 

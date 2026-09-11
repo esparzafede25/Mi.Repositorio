@@ -8,7 +8,9 @@ interface ConfirmDialogProps {
   title: string;
   message: string;
   confirmText?: string;
+  confirmLabel?: string;
   cancelText?: string;
+  cancelLabel?: string;
   isDestructive?: boolean;
   isLoading?: boolean;
   onConfirm: () => void;
@@ -19,13 +21,17 @@ export default function ConfirmDialog({
   isOpen,
   title,
   message,
-  confirmText = "ELIMINAR",
-  cancelText = "CANCELAR",
+  confirmText,
+  confirmLabel,
+  cancelText,
+  cancelLabel,
   isDestructive = true,
   isLoading = false,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const finalConfirmText = confirmLabel || confirmText || "ELIMINAR";
+  const finalCancelText = cancelLabel || cancelText || "CANCELAR";
   if (!isOpen) return null;
 
   return (
@@ -56,7 +62,7 @@ export default function ConfirmDialog({
             disabled={isLoading}
             className="px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 rounded-xl transition"
           >
-            {cancelText}
+            {finalCancelText}
           </button>
           <button
             type="button"
@@ -71,7 +77,7 @@ export default function ConfirmDialog({
             {isLoading ? (
               <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
             ) : null}
-            {confirmText}
+            {finalConfirmText}
           </button>
         </div>
       </div>

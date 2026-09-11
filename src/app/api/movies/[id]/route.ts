@@ -16,6 +16,11 @@ export async function GET(
 
     const movie = await prisma.movie.findFirst({
       where: { id, userId: user.id },
+      include: {
+        moments: {
+          orderBy: { createdAt: "desc" },
+        },
+      },
     });
 
     if (!movie) {
@@ -62,6 +67,12 @@ export async function PUT(
       notes,
       review,
       tags,
+      isFavorite,
+      markedMe,
+      rewatch,
+      favoriteOrder,
+      personalPhotos,
+      location,
     } = body;
 
     const updated = await prisma.movie.update({
@@ -79,6 +90,15 @@ export async function PUT(
         notes: notes !== undefined ? notes?.trim() || null : existing.notes,
         review: review !== undefined ? review?.trim() || null : existing.review,
         tags: tags !== undefined ? tags?.trim() || null : existing.tags,
+        isFavorite: isFavorite !== undefined ? Boolean(isFavorite) : existing.isFavorite,
+        markedMe: markedMe !== undefined ? Boolean(markedMe) : existing.markedMe,
+        rewatch: rewatch !== undefined ? Boolean(rewatch) : existing.rewatch,
+        favoriteOrder: favoriteOrder !== undefined ? (favoriteOrder ? parseInt(favoriteOrder) : null) : existing.favoriteOrder,
+        personalPhotos: personalPhotos !== undefined ? personalPhotos : existing.personalPhotos,
+        location: location !== undefined ? location?.trim() || null : existing.location,
+      },
+      include: {
+        moments: true,
       },
     });
 

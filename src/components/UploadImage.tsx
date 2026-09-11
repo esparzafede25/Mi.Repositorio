@@ -5,17 +5,27 @@ import { Upload, Image as ImageIcon, X, Link as LinkIcon, Check } from "lucide-r
 
 interface UploadImageProps {
   currentUrl?: string | null;
-  onImageChange: (url: string) => void;
+  currentImageUrl?: string | null;
+  onImageChange?: (url: string) => void;
+  onImageUploaded?: (url: string) => void;
   label?: string;
   category?: "movie" | "game" | "book" | "avatar";
 }
 
 export default function UploadImage({
   currentUrl,
+  currentImageUrl,
   onImageChange,
+  onImageUploaded,
   label = "Imagen de portada / póster",
   category = "movie",
 }: UploadImageProps) {
+  const activeUrl = currentImageUrl !== undefined ? currentImageUrl : currentUrl;
+  const triggerChange = (url: string) => {
+    if (onImageChange) onImageChange(url);
+    if (onImageUploaded) onImageUploaded(url);
+  };
+
   const [isUploading, setIsUploading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [manualMode, setManualMode] = useState(false);
@@ -40,7 +50,7 @@ export default function UploadImage({
 
       const data = await res.json();
       if (res.ok && data.success) {
-        onImageChange(data.url);
+        triggerChange(data.url);
       } else {
         setErrorMsg(data.error || "Error al subir la imagen");
       }
@@ -54,7 +64,7 @@ export default function UploadImage({
 
   const handleApplyManualUrl = () => {
     if (manualUrlInput.trim()) {
-      onImageChange(manualUrlInput.trim());
+      triggerChange(manualUrlInput.trim());
       setManualMode(false);
       setManualUrlInput("");
     }
@@ -102,10 +112,10 @@ export default function UploadImage({
         </div>
       ) : (
         <div className="flex items-center gap-4">
-          {currentUrl ? (
+          {activeUrl ? (
             <div className={`relative ${aspectRatios[category]} rounded-xl overflow-hidden border border-white/20 bg-black/50 shrink-0 shadow-lg group`}>
               <img
-                src={currentUrl}
+                src={activeUrl}
                 alt="Vista previa"
                 className="w-full h-full object-cover"
                 onError={(e) => {
@@ -115,7 +125,7 @@ export default function UploadImage({
               />
               <button
                 type="button"
-                onClick={() => onImageChange("")}
+                onClick={() => triggerChange("")}
                 className="absolute top-1 right-1 p-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition shadow-md"
                 title="Eliminar imagen"
               >
@@ -141,7 +151,7 @@ export default function UploadImage({
             </div>
           )}
 
-          {currentUrl && (
+          {activeUrl && (
             <div className="flex flex-col gap-2">
               <button
                 type="button"
@@ -153,7 +163,7 @@ export default function UploadImage({
               </button>
               <button
                 type="button"
-                onClick={() => onImageChange("")}
+                onClick={() => triggerChange("")}
                 className="text-xs font-semibold px-3 py-1.5 rounded-lg text-rose-400 hover:bg-rose-500/10 transition text-left"
               >
                 Quitar imagen

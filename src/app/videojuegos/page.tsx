@@ -7,10 +7,11 @@ import FilterBar from "@/components/FilterBar";
 import GameModal from "@/components/GameModal";
 import GameSearchModal, { GameSearchResult } from "@/components/GameSearchModal";
 import ItemDetailModal from "@/components/ItemDetailModal";
+import PrintDownloadModal from "@/components/PrintDownloadModal";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import EmptyState from "@/components/EmptyState";
 import { useToast } from "@/context/ToastContext";
-import { Gamepad2, Plus, Sparkles } from "lucide-react";
+import { Gamepad2, Plus, Sparkles, Printer, Heart, RotateCcw } from "lucide-react";
 
 export default function VideojuegosPage() {
   const { success, error } = useToast();
@@ -23,10 +24,14 @@ export default function VideojuegosPage() {
   const [genreFilter, setGenreFilter] = useState("");
   const [platformFilter, setPlatformFilter] = useState("");
   const [sortBy, setSortBy] = useState("recent");
+  const [favoriteOnly, setFavoriteOnly] = useState(false);
+  const [markedOnly, setMarkedOnly] = useState(false);
+  const [rewatchOnly, setRewatchOnly] = useState(false);
 
   // Modals
   const [gameModalOpen, setGameModalOpen] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const [printModalOpen, setPrintModalOpen] = useState(false);
   const [editingGame, setEditingGame] = useState<Partial<VideogameItem> | null>(null);
   const [detailGame, setDetailGame] = useState<VideogameItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<VideogameItem | null>(null);
@@ -39,6 +44,9 @@ export default function VideojuegosPage() {
       if (genreFilter) params.set("genre", genreFilter);
       if (platformFilter) params.set("platform", platformFilter);
       if (sortBy) params.set("sort", sortBy);
+      if (favoriteOnly) params.set("favorite", "true");
+      if (markedOnly) params.set("markedMe", "true");
+      if (rewatchOnly) params.set("rewatch", "true");
 
       const res = await fetch(`/api/videogames?${params.toString()}`);
       if (res.ok) {
@@ -54,30 +62,26 @@ export default function VideojuegosPage() {
 
   useEffect(() => {
     fetchGames();
-  }, [searchQuery, statusFilter, genreFilter, platformFilter, sortBy]);
+  }, [searchQuery, statusFilter, genreFilter, platformFilter, sortBy, favoriteOnly, markedOnly, rewatchOnly]);
 
   // Unique genres & platforms
   const genreOptions = useMemo(() => {
-    const set = new Set<string>();
+    const genresSet = new Set<string>();
     games.forEach((g) => {
       if (g.genres) {
-        g.genres.split(",").forEach((item) => set.add(item.trim()));
+        g.genres.split(",").forEach((genre) => genresSet.add(genre.trim()));
       }
     });
-    return Array.from(set).map((g) => ({ value: g, label: g }));
+    return Array.from(genresSet).map((g) => ({ value: g, label: g }));
   }, [games]);
 
-  const platformOptions = [
-    { value: "PC", label: "PC / Windows" },
-    { value: "PlayStation 5", label: "PlayStation 5" },
-    { value: "PlayStation 4", label: "PlayStation 4" },
-    { value: "PlayStation 2", label: "PlayStation 2 / Retro" },
-    { value: "Nintendo Switch", label: "Nintendo Switch" },
-    { value: "Xbox Series X/S", label: "Xbox Series X/S" },
-    { value: "Xbox One", label: "Xbox One" },
-    { value: "Retro / Emulador", label: "Retro / Emulador" },
-    { value: "Móvil", label: "Móvil / Tablet" },
-  ];
+  const platformOptions = useMemo(() => {
+    const platSet = new Set<string>();
+    games.forEach((g) => {
+      if (g.platform) platSet.add(g.platform.trim());
+    });
+    return Array.from(platSet).map((p) => ({ value: p, label: p }));
+  }, [games]);
 
   const statusOptions = [
     { value: "Terminado", label: "Terminado" },
@@ -92,6 +96,9 @@ export default function VideojuegosPage() {
     setGenreFilter("");
     setPlatformFilter("");
     setSortBy("recent");
+    setFavoriteOnly(false);
+    setMarkedOnly(false);
+    setRewatchOnly(false);
   };
 
   const handleDeleteConfirm = async () => {
@@ -146,7 +153,17 @@ export default function VideojuegosPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Print / Download button */}
+          <button
+            onClick={() => setPrintModalOpen(true)}
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold transition shadow-md"
+            title="Descargar o imprimir lista para papel"
+          >
+            <Printer className="w-4 h-4 text-cyan-400" />
+            Imprimir / Descargar Lista
+          </button>
+
           <button
             onClick={() => setSearchModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white text-xs font-bold transition active:scale-95 shadow-md"
@@ -167,9 +184,49 @@ export default function VideojuegosPage() {
         </div>
       </div>
 
-      {/* Filter and Search */}
+      {/* Cultural Quick Filter Toggles */}
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setFavoriteOnly(!favoriteOnly)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
+            favoriteOnly
+              ? "bg-rose-500/20 border-rose-500/50 text-rose-300"
+              : "bg-white/5 border-white/10 text-slate-400 hover:text-white"
+          }`}
+        >
+          <Heart className={`w-3.5 h-3.5 ${favoriteOnly ? "fill-rose-500 text-rose-500" : ""}`} />
+          Solo Favoritos
+        </button>
+        <button
+          type="button"
+          onClick={() => setMarkedOnly(!markedOnly)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
+            markedOnly
+              ? "bg-amber-500/20 border-amber-500/50 text-amber-300"
+              : "bg-white/5 border-white/10 text-slate-400 hover:text-white"
+          }`}
+        >
+          <Sparkles className={`w-3.5 h-3.5 ${markedOnly ? "fill-amber-400 text-amber-400" : ""}`} />
+          Solo Me Marcó
+        </button>
+        <button
+          type="button"
+          onClick={() => setRewatchOnly(!rewatchOnly)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
+            rewatchOnly
+              ? "bg-cyan-500/20 border-cyan-500/50 text-cyan-300"
+              : "bg-white/5 border-white/10 text-slate-400 hover:text-white"
+          }`}
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          Volver a Jugar
+        </button>
+      </div>
+
+      {/* Filter and Search Bar */}
       <FilterBar
-        searchPlaceholder="Buscar por título, desarrollador, plataforma, género..."
+        searchPlaceholder="Buscar por título, desarrollador, plataforma..."
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         statusFilter={statusFilter}
@@ -178,23 +235,20 @@ export default function VideojuegosPage() {
         genreFilter={genreFilter}
         onGenreChange={setGenreFilter}
         genreOptions={genreOptions}
-        customFilter={{
-          label: "Todas las plataformas",
-          value: platformFilter,
-          onChange: setPlatformFilter,
-          options: platformOptions,
-        }}
+        platformFilter={platformFilter}
+        onPlatformChange={setPlatformFilter}
+        platformOptions={platformOptions}
         sortBy={sortBy}
         onSortChange={setSortBy}
         onReset={handleResetFilters}
         totalCount={games.length}
       />
 
-      {/* Grid or Empty */}
+      {/* Grid or Empty state */}
       {loading ? (
         <div className="py-24 flex flex-col items-center justify-center text-center">
           <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mb-3" />
-          <p className="text-sm text-slate-400">Cargando base de videojuegos...</p>
+          <p className="text-sm text-slate-400">Accediendo a tu juegoteca...</p>
         </div>
       ) : games.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
@@ -218,8 +272,8 @@ export default function VideojuegosPage() {
       ) : (
         <EmptyState
           icon="🎮"
-          title="Todavía no agregaste ningún videojuego."
-          subtitle="Empezá a construir tu archivo gamer y llevá registro de tus victorias."
+          title="No se encontraron videojuegos."
+          subtitle="Probá cambiando los filtros o sumá un nuevo título."
           actionText="+ REGISTRAR VIDEOJUEGO"
           accentColor="cyan"
           onAction={() => {
@@ -237,6 +291,21 @@ export default function VideojuegosPage() {
         initialData={editingGame}
       />
 
+      <GameSearchModal
+        isOpen={searchModalOpen}
+        onClose={() => setSearchModalOpen(false)}
+        onSelectGame={handleSelectGame}
+      />
+
+      {/* Print / Download Modal */}
+      <PrintDownloadModal
+        isOpen={printModalOpen}
+        onClose={() => setPrintModalOpen(false)}
+        title="Catálogo de Videojuegos"
+        items={games}
+        category="videogame"
+      />
+
       <ItemDetailModal
         isOpen={Boolean(detailGame)}
         onClose={() => setDetailGame(null)}
@@ -249,20 +318,15 @@ export default function VideojuegosPage() {
         onDelete={() => {
           if (detailGame) setDeleteTarget(detailGame);
         }}
+        onItemUpdated={() => fetchGames()}
       />
 
       <ConfirmDialog
         isOpen={Boolean(deleteTarget)}
         title="Eliminar videojuego"
-        message={`¿Seguro que querés eliminar "${deleteTarget?.title}" de tu colección de juegos?`}
+        message={`¿Seguro que querés eliminar "${deleteTarget?.title}" de tu colección personal?`}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteTarget(null)}
-      />
-
-      <GameSearchModal
-        isOpen={searchModalOpen}
-        onClose={() => setSearchModalOpen(false)}
-        onSelectGame={handleSelectGame}
       />
     </div>
   );

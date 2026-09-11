@@ -2,7 +2,7 @@
 
 import React from "react";
 import { VideogameItem } from "@/lib/types";
-import { Gamepad2, Star, Edit2, Trash2 } from "lucide-react";
+import { Gamepad2, Star, Edit2, Trash2, Heart, Sparkles, RotateCcw } from "lucide-react";
 
 interface GameCardProps {
   game: VideogameItem;
@@ -62,8 +62,8 @@ export default function GameCard({
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
 
-        {/* Platform badge top left */}
-        <div className="absolute top-2.5 left-2.5 flex flex-col gap-1">
+        {/* Platform badge and cultural badges */}
+        <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
           {game.platform && (
             <span
               className={`px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-md border backdrop-blur-md shadow-md ${getPlatformBadge(
@@ -71,6 +71,21 @@ export default function GameCard({
               )}`}
             >
               {game.platform}
+            </span>
+          )}
+          {game.isFavorite && (
+            <span className="p-1 rounded-full bg-black/70 border border-rose-500/40 text-rose-400 backdrop-blur-md shadow" title="Favorito">
+              <Heart className="w-3 h-3 fill-rose-500" />
+            </span>
+          )}
+          {game.markedMe && (
+            <span className="p-1 rounded-full bg-black/70 border border-amber-500/40 text-amber-400 backdrop-blur-md shadow" title="Me marcó">
+              <Sparkles className="w-3 h-3 fill-amber-400" />
+            </span>
+          )}
+          {game.rewatch && (
+            <span className="p-1 rounded-full bg-black/70 border border-cyan-500/40 text-cyan-400 backdrop-blur-md shadow" title="Volver a jugar">
+              <RotateCcw className="w-3 h-3" />
             </span>
           )}
         </div>
@@ -102,7 +117,7 @@ export default function GameCard({
               e.stopPropagation();
               onEdit(e);
             }}
-            className="p-1.5 bg-black/80 hover:bg-cyan-400 hover:text-black text-white rounded-lg border border-white/20 backdrop-blur-md transition shadow-md"
+            className="p-1.5 bg-black/80 hover:bg-cyan-500 hover:text-black text-white rounded-lg border border-white/20 backdrop-blur-md transition shadow-md"
             title="Editar videojuego"
           >
             <Edit2 className="w-3.5 h-3.5" />
@@ -121,7 +136,7 @@ export default function GameCard({
         </div>
       </div>
 
-      {/* Game info */}
+      {/* Information metadata */}
       <div className="p-3.5 flex flex-col flex-1 justify-between bg-[#12151d]">
         <div>
           <div className="flex items-start justify-between gap-1 mb-1">
@@ -136,7 +151,7 @@ export default function GameCard({
           </div>
           {game.developer && (
             <p className="text-xs text-slate-400 line-clamp-1 italic mb-1.5">
-              Dev. {game.developer}
+              {game.developer}
             </p>
           )}
         </div>

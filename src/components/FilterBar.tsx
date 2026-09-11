@@ -18,6 +18,9 @@ interface FilterBarProps {
   genreFilter: string;
   onGenreChange: (genre: string) => void;
   genreOptions: FilterOption[];
+  platformFilter?: string;
+  onPlatformChange?: (platform: string) => void;
+  platformOptions?: FilterOption[];
   customFilter?: {
     label: string;
     value: string;
@@ -40,6 +43,9 @@ export default function FilterBar({
   genreFilter,
   onGenreChange,
   genreOptions,
+  platformFilter,
+  onPlatformChange,
+  platformOptions,
   customFilter,
   sortBy,
   onSortChange,
@@ -50,6 +56,7 @@ export default function FilterBar({
     Boolean(searchQuery) ||
     Boolean(statusFilter) ||
     Boolean(genreFilter) ||
+    Boolean(platformFilter) ||
     Boolean(customFilter?.value);
 
   return (
@@ -149,6 +156,27 @@ export default function FilterBar({
             </option>
           ))}
         </select>
+
+        {/* Platform filter */}
+        {platformOptions && onPlatformChange && (
+          <select
+            value={platformFilter || ""}
+            onChange={(e) => onPlatformChange(e.target.value)}
+            aria-label="Filtrar por plataforma"
+            className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition cursor-pointer ${
+              platformFilter
+                ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-300"
+                : "bg-[#12151d] border-white/10 text-slate-300 hover:border-white/20"
+            }`}
+          >
+            <option value="" className="bg-[#12151d]">Todas las plataformas</option>
+            {platformOptions.map((opt) => (
+              <option key={opt.value} value={opt.value} className="bg-[#12151d]">
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        )}
 
         {/* Custom filter (e.g. platform) */}
         {customFilter && (

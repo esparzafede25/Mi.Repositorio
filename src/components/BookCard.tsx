@@ -2,7 +2,7 @@
 
 import React from "react";
 import { BookItem } from "@/lib/types";
-import { BookOpen, Star, Edit2, Trash2 } from "lucide-react";
+import { BookOpen, Star, Edit2, Trash2, Heart, Sparkles, RotateCcw } from "lucide-react";
 
 interface BookCardProps {
   book: BookItem;
@@ -52,8 +52,8 @@ export default function BookCard({
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
 
-        {/* Status badge */}
-        <div className="absolute top-2.5 left-2.5">
+        {/* Status badge & cultural badges */}
+        <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
           <span
             className={`px-2 py-0.5 text-[11px] font-bold rounded-full border backdrop-blur-md shadow-md ${
               statusStyles[book.status] || "bg-slate-800 text-slate-300 border-white/10"
@@ -61,6 +61,21 @@ export default function BookCard({
           >
             {book.status}
           </span>
+          {book.isFavorite && (
+            <span className="p-1 rounded-full bg-black/70 border border-rose-500/40 text-rose-400 backdrop-blur-md shadow" title="Favorito">
+              <Heart className="w-3 h-3 fill-rose-500" />
+            </span>
+          )}
+          {book.markedMe && (
+            <span className="p-1 rounded-full bg-black/70 border border-amber-500/40 text-amber-400 backdrop-blur-md shadow" title="Me marcó">
+              <Sparkles className="w-3 h-3 fill-amber-400" />
+            </span>
+          )}
+          {book.rewatch && (
+            <span className="p-1 rounded-full bg-black/70 border border-amber-400/40 text-amber-300 backdrop-blur-md shadow" title="Volver a leer">
+              <RotateCcw className="w-3 h-3" />
+            </span>
+          )}
         </div>
 
         {/* Rating */}
@@ -98,11 +113,11 @@ export default function BookCard({
         </div>
       </div>
 
-      {/* Book info */}
+      {/* Information metadata */}
       <div className="p-3.5 flex flex-col flex-1 justify-between bg-[#12151d]">
         <div>
           <div className="flex items-start justify-between gap-1 mb-1">
-            <h4 className="font-bold text-sm text-white line-clamp-1 group-hover:text-amber-300 transition-colors font-serif">
+            <h4 className="font-bold text-sm text-white line-clamp-1 group-hover:text-amber-300 transition-colors">
               {book.title}
             </h4>
             {book.year && (
@@ -112,17 +127,22 @@ export default function BookCard({
             )}
           </div>
           {book.author && (
-            <p className="text-xs text-slate-300 line-clamp-1 italic mb-1.5">
+            <p className="text-xs text-slate-400 line-clamp-1 italic mb-1.5">
               Por {book.author}
             </p>
           )}
         </div>
 
         {book.genre && (
-          <div className="mt-2">
-            <span className="text-[10px] text-amber-300/80 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/10">
-              {book.genre}
-            </span>
+          <div className="flex flex-wrap gap-1 mt-2">
+            {book.genre.split(",").slice(0, 2).map((g, idx) => (
+              <span
+                key={idx}
+                className="text-[10px] text-slate-400 bg-white/5 px-2 py-0.5 rounded-md border border-white/5"
+              >
+                {g.trim()}
+              </span>
+            ))}
           </div>
         )}
       </div>

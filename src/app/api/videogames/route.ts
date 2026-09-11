@@ -14,6 +14,10 @@ export async function GET(request: Request) {
     const platform = searchParams.get("platform")?.trim() || "";
     const genre = searchParams.get("genre")?.trim() || "";
     const status = searchParams.get("status")?.trim() || "";
+    const favorite = searchParams.get("favorite");
+    const markedMe = searchParams.get("markedMe");
+    const rewatch = searchParams.get("rewatch");
+    const tag = searchParams.get("tag")?.trim() || "";
     const sort = searchParams.get("sort") || "recent";
 
     const whereClause: any = {
@@ -27,6 +31,7 @@ export async function GET(request: Request) {
         { platform: { contains: q } },
         { genres: { contains: q } },
         { tags: { contains: q } },
+        { location: { contains: q } },
       ];
     }
 
@@ -38,8 +43,24 @@ export async function GET(request: Request) {
       whereClause.genres = { contains: genre };
     }
 
+    if (tag) {
+      whereClause.tags = { contains: tag };
+    }
+
     if (status) {
       whereClause.status = status;
+    }
+
+    if (favorite === "true") {
+      whereClause.isFavorite = true;
+    }
+
+    if (markedMe === "true") {
+      whereClause.markedMe = true;
+    }
+
+    if (rewatch === "true") {
+      whereClause.rewatch = true;
     }
 
     let orderBy: any = { createdAt: "desc" };
@@ -48,10 +69,16 @@ export async function GET(request: Request) {
     if (sort === "za") orderBy = { title: "desc" };
     if (sort === "rating_desc") orderBy = { rating: "desc" };
     if (sort === "year_desc") orderBy = { year: "desc" };
+    if (sort === "favorite_order") orderBy = [{ favoriteOrder: "asc" }, { rating: "desc" }];
 
     const videogames = await prisma.videogame.findMany({
       where: whereClause,
       orderBy,
+      include: {
+        moments: {
+          orderBy: { createdAt: "desc" },
+        },
+      },
     });
 
     return NextResponse.json({ videogames });
@@ -82,13 +109,19 @@ export async function POST(request: Request) {
       notes,
       review,
       tags,
+      isFavorite = false,
+      markedMe = false,
+      rewatch = false,
+      favoriteOrder,
+      personalPhotos,
+      location,
     } = body;
 
     if (!title || !title.trim()) {
       return NextResponse.json({ error: "El título del videojuego es obligatorio." }, { status: 400 });
     }
 
-    const game = await prisma.videogame.create({
+    const videogame = await prisma.videogame.create({
       data: {
         userId: user.id,
         title: title.trim(),
@@ -103,6 +136,12 @@ export async function POST(request: Request) {
         notes: notes?.trim() || null,
         review: review?.trim() || null,
         tags: tags?.trim() || null,
+        isFavorite: Boolean(isFavorite),
+        markedMe: Boolean(markedMe),
+        rewatch: Boolean(rewatch),
+        favoriteOrder: favoriteOrder ? parseInt(favoriteOrder) : null,
+        personalPhotos: personalPhotos || null,
+        location: location?.trim() || null,
       },
     });
 
@@ -111,19 +150,19 @@ export async function POST(request: Request) {
       data: {
         userId: user.id,
         entityType: "videogame",
-        entityId: game.id,
-        action: "Registraste",
-        title: game.title,
+        entityId: videogame.id,
+        action: "Agregaste",
+        title: videogame.title,
       },
     });
 
     return NextResponse.json({
       success: true,
-      videogame: game,
+      videogame,
       message: "Videojuego guardado correctamente.",
     });
   } catch (error) {
-    console.error("Error al guardar videojuego:", error);
-    return NextResponse.json({ error: "Error al guardar videojuego" }, { status: 500 });
+    console.error("Error al crear videojuego:", error);
+    return NextResponse.json({ error: "Error al guardar el videojuego" }, { status: 500 });
   }
 }

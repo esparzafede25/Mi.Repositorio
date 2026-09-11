@@ -11,10 +11,9 @@ import {
   Compass,
   Star,
   Sparkles,
-  ShieldCheck,
-  Layers,
   History,
   Heart,
+  Bookmark,
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -32,7 +31,7 @@ export default function LandingPage() {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs font-semibold uppercase tracking-widest mb-8 backdrop-blur-md shadow-lg shadow-amber-500/5">
           <Sparkles className="w-3.5 h-3.5" />
-          Archivo Cultural Personal
+          Biografía Cultural Personal
         </div>
 
         {/* Main Headline */}
@@ -45,102 +44,108 @@ export default function LandingPage() {
 
         {/* Subtitle */}
         <p className="text-base sm:text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
-          Construí tu propia biografía cultural. Un repositorio vivo donde registrar, puntuar
-          y revivir tus películas, videojuegos y libros favoritos con memoria, detalle y estilo.
+          No es simplemente una base de datos o un catálogo. Es el lugar donde registrar no solo
+          qué obras consumiste, sino cuáles fueron importantes para tu vida, con quién las compartiste y qué recuerdos tenés asociados.
         </p>
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
           <Link
-            href="/dashboard"
+            href={user ? "/dashboard" : "/registro"}
             className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 text-black font-bold text-base shadow-xl shadow-amber-500/25 transition-all transform active:scale-95 flex items-center justify-center gap-2"
           >
-            {user ? "Ir a Mi Repositorio" : "Entrar a Mi Repositorio"} <ArrowRight className="w-5 h-5" />
+            {user ? "Ir a Mi Repositorio" : "CREAR MI REPOSITORIO"} <ArrowRight className="w-5 h-5" />
           </Link>
-          {!user && (
-            <Link
-              href="/registro"
-              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-base transition-all transform active:scale-95"
-            >
-              Crear Cuenta Gratis
-            </Link>
-          )}
+          <Link
+            href={user ? "/dashboard" : "/login"}
+            className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-base transition-all transform active:scale-95"
+          >
+            {user ? "Ver Portada" : "Entrar a Mi Cuenta"}
+          </Link>
         </div>
       </section>
 
-      {/* Cultural Columns Preview */}
-      <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Cultural Columns Preview - 5 Dimensions */}
+      <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           {/* Cinema */}
           <Link
             href="/peliculas"
-            className="group relative rounded-2xl p-6 bg-[#12151d]/90 border border-amber-500/20 hover:border-amber-500/60 transition-all duration-300 shadow-xl hover:shadow-amber-500/10 block cursor-pointer"
+            className="group relative rounded-2xl p-5 bg-[#12151d]/90 border border-amber-500/20 hover:border-amber-500/60 transition-all duration-300 shadow-xl hover:shadow-amber-500/10 block cursor-pointer"
           >
-            <div className="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <Film className="w-6 h-6" />
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <Film className="w-5 h-5" />
             </div>
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-xl font-bold text-white group-hover:text-amber-300 transition-colors">🎬 Películas</h2>
-              <span className="text-xs font-mono text-amber-400">Cinematografía</span>
-            </div>
-            <p className="text-slate-400 text-sm leading-relaxed mb-4">
-              Pósters verticales, directores, fecha de visionado y búsqueda instantánea conectada a la API de TMDB.
+            <h2 className="text-lg font-bold text-white group-hover:text-amber-300 transition-colors mb-1">
+              🎬 Películas
+            </h2>
+            <p className="text-slate-400 text-xs leading-relaxed">
+              Fichas cinematográficas, pósters, fecha de visionado y buscador de TMDB.
             </p>
-            <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs text-slate-500">
-              <span>Buscador TMDB</span>
-              <span>•</span>
-              <span>Reseñas de autor</span>
-              <span>•</span>
-              <span>Filtros por género</span>
-            </div>
           </Link>
 
           {/* Video Games */}
           <Link
             href="/videojuegos"
-            className="group relative rounded-2xl p-6 bg-[#12151d]/90 border border-cyan-500/20 hover:border-cyan-500/60 transition-all duration-300 shadow-xl hover:shadow-cyan-500/10 block cursor-pointer"
+            className="group relative rounded-2xl p-5 bg-[#12151d]/90 border border-cyan-500/20 hover:border-cyan-500/60 transition-all duration-300 shadow-xl hover:shadow-cyan-500/10 block cursor-pointer"
           >
-            <div className="w-12 h-12 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <Gamepad2 className="w-6 h-6" />
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <Gamepad2 className="w-5 h-5" />
             </div>
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-xl font-bold text-white group-hover:text-cyan-300 transition-colors">🎮 Videojuegos</h2>
-              <span className="text-xs font-mono text-cyan-400">Gamer Archive</span>
-            </div>
-            <p className="text-slate-400 text-sm leading-relaxed mb-4">
-              Carátulas, plataformas (PC, PS5, Switch, Xbox, Retro), desarrolladores, horas de juego y estados de completitud.
+            <h2 className="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors mb-1">
+              🎮 Videojuegos
+            </h2>
+            <p className="text-slate-400 text-xs leading-relaxed">
+              Plataformas (PC, PS, Switch, Xbox, Retro), carátulas y horas invertidas.
             </p>
-            <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs text-slate-500">
-              <span>Plataformas</span>
-              <span>•</span>
-              <span>Terminado / En curso</span>
-              <span>•</span>
-              <span>Subida de covers</span>
-            </div>
           </Link>
 
           {/* Books */}
           <Link
             href="/libros"
-            className="group relative rounded-2xl p-6 bg-[#12151d]/90 border border-rose-500/20 hover:border-rose-500/60 transition-all duration-300 shadow-xl hover:shadow-rose-500/10 block cursor-pointer"
+            className="group relative rounded-2xl p-5 bg-[#12151d]/90 border border-amber-400/20 hover:border-amber-400/60 transition-all duration-300 shadow-xl hover:shadow-amber-400/10 block cursor-pointer"
           >
-            <div className="w-12 h-12 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <BookOpen className="w-6 h-6" />
+            <div className="w-10 h-10 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <BookOpen className="w-5 h-5" />
             </div>
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-xl font-bold text-white font-serif group-hover:text-rose-300 transition-colors">📚 Libros</h2>
-              <span className="text-xs font-mono text-rose-400">Biblioteca</span>
-            </div>
-            <p className="text-slate-400 text-sm leading-relaxed mb-4">
-              Fichas bibliográficas, autores, citas favoritas, reflexiones personales y fechas de lectura preservadas para siempre.
+            <h2 className="text-lg font-bold text-white group-hover:text-amber-300 transition-colors mb-1">
+              📚 Libros
+            </h2>
+            <p className="text-slate-400 text-xs leading-relaxed">
+              Fichas de autor, estanterías, citas favoritas y reflexiones de lectura.
             </p>
-            <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs text-slate-500">
-              <span>Citas & Reflexión</span>
-              <span>•</span>
-              <span>Lomos editoriales</span>
-              <span>•</span>
-              <span>Historial</span>
+          </Link>
+
+          {/* Moments */}
+          <Link
+            href="/momentos"
+            className="group relative rounded-2xl p-5 bg-[#12151d]/90 border border-rose-500/20 hover:border-rose-500/60 transition-all duration-300 shadow-xl hover:shadow-rose-500/10 block cursor-pointer"
+          >
+            <div className="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <Sparkles className="w-5 h-5" />
             </div>
+            <h2 className="text-lg font-bold text-white group-hover:text-rose-300 transition-colors mb-1">
+              ✨ Momentos
+            </h2>
+            <p className="text-slate-400 text-xs leading-relaxed">
+              Álbum de recuerdos: con quién lo viste, anécdotas y fotos personales.
+            </p>
+          </Link>
+
+          {/* History */}
+          <Link
+            href="/historia"
+            className="group relative rounded-2xl p-5 bg-[#12151d]/90 border border-cyan-400/20 hover:border-cyan-400/60 transition-all duration-300 shadow-xl hover:shadow-cyan-400/10 block cursor-pointer"
+          >
+            <div className="w-10 h-10 rounded-xl bg-cyan-400/20 text-cyan-300 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <History className="w-5 h-5" />
+            </div>
+            <h2 className="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors mb-1">
+              ⏳ Historia
+            </h2>
+            <p className="text-slate-400 text-xs leading-relaxed">
+              Línea de tiempo cultural cronológica por años y décadas reales.
+            </p>
           </Link>
         </div>
       </section>
@@ -153,9 +158,9 @@ export default function LandingPage() {
               <Heart className="w-3.5 h-3.5 fill-rose-500/30" />
               Apoyar el Proyecto
             </div>
-            <h3 className="text-xl font-bold text-white">¿Te gusta Mi Repositorio?</h3>
+            <h3 className="text-xl font-bold text-white">¿Te resulta útil Mi Repositorio?</h3>
             <p className="text-xs sm:text-sm text-slate-300 max-w-md leading-relaxed">
-              Podés colaborar directamente con el desarrollo y mantenimiento del proyecto.
+              Podés colaborar económicamente para mantener el servidor y seguir desarrollando nuevas funciones.
             </p>
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 pt-1 text-xs text-slate-400">
               <span>Titular: <strong className="text-white">Federico Esparza</strong></span>
@@ -173,9 +178,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Philosophy banner */}
-      <section className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 my-12 text-center border-t border-b border-white/10 py-10">
-        <blockquote className="text-lg sm:text-xl font-light italic text-slate-300 leading-relaxed">
+      {/* Philosophy Quote */}
+      <section className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 my-10 text-center border-t border-b border-white/10 py-8">
+        <blockquote className="text-base sm:text-xl font-light italic text-slate-300 leading-relaxed font-serif">
           &ldquo;No es solamente guardar títulos. Es edificar una memoria palpable de tus pasiones,
           las historias que te transformaron y las horas que te marcaron.&rdquo;
         </blockquote>

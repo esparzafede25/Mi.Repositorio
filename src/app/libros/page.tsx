@@ -7,10 +7,11 @@ import FilterBar from "@/components/FilterBar";
 import BookModal from "@/components/BookModal";
 import BookSearchModal, { BookSearchResult } from "@/components/BookSearchModal";
 import ItemDetailModal from "@/components/ItemDetailModal";
+import PrintDownloadModal from "@/components/PrintDownloadModal";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import EmptyState from "@/components/EmptyState";
 import { useToast } from "@/context/ToastContext";
-import { BookOpen, Plus, Sparkles } from "lucide-react";
+import { BookOpen, Plus, Sparkles, Printer, Heart, RotateCcw } from "lucide-react";
 
 export default function LibrosPage() {
   const { success, error } = useToast();
@@ -23,10 +24,14 @@ export default function LibrosPage() {
   const [genreFilter, setGenreFilter] = useState("");
   const [authorFilter, setAuthorFilter] = useState("");
   const [sortBy, setSortBy] = useState("recent");
+  const [favoriteOnly, setFavoriteOnly] = useState(false);
+  const [markedOnly, setMarkedOnly] = useState(false);
+  const [rewatchOnly, setRewatchOnly] = useState(false);
 
   // Modals
   const [bookModalOpen, setBookModalOpen] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const [printModalOpen, setPrintModalOpen] = useState(false);
   const [editingBook, setEditingBook] = useState<Partial<BookItem> | null>(null);
   const [detailBook, setDetailBook] = useState<BookItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<BookItem | null>(null);
@@ -39,6 +44,9 @@ export default function LibrosPage() {
       if (genreFilter) params.set("genre", genreFilter);
       if (authorFilter) params.set("author", authorFilter);
       if (sortBy) params.set("sort", sortBy);
+      if (favoriteOnly) params.set("favorite", "true");
+      if (markedOnly) params.set("markedMe", "true");
+      if (rewatchOnly) params.set("rewatch", "true");
 
       const res = await fetch(`/api/books?${params.toString()}`);
       if (res.ok) {
@@ -54,26 +62,17 @@ export default function LibrosPage() {
 
   useEffect(() => {
     fetchBooks();
-  }, [searchQuery, statusFilter, genreFilter, authorFilter, sortBy]);
+  }, [searchQuery, statusFilter, genreFilter, authorFilter, sortBy, favoriteOnly, markedOnly, rewatchOnly]);
 
   // Unique genres
   const genreOptions = useMemo(() => {
-    const set = new Set<string>();
+    const genresSet = new Set<string>();
     books.forEach((b) => {
       if (b.genre) {
-        b.genre.split(",").forEach((item) => set.add(item.trim()));
+        b.genre.split(",").forEach((genre) => genresSet.add(genre.trim()));
       }
     });
-    return Array.from(set).map((g) => ({ value: g, label: g }));
-  }, [books]);
-
-  // Unique authors
-  const authorOptions = useMemo(() => {
-    const set = new Set<string>();
-    books.forEach((b) => {
-      if (b.author) set.add(b.author.trim());
-    });
-    return Array.from(set).map((a) => ({ value: a, label: a }));
+    return Array.from(genresSet).map((g) => ({ value: g, label: g }));
   }, [books]);
 
   const statusOptions = [
@@ -89,6 +88,9 @@ export default function LibrosPage() {
     setGenreFilter("");
     setAuthorFilter("");
     setSortBy("recent");
+    setFavoriteOnly(false);
+    setMarkedOnly(false);
+    setRewatchOnly(false);
   };
 
   const handleDeleteConfirm = async () => {
@@ -97,7 +99,7 @@ export default function LibrosPage() {
     try {
       const res = await fetch(`/api/books/${deleteTarget.id}`, { method: "DELETE" });
       if (res.ok) {
-        success("Libro eliminado de tu biblioteca correctamente ✓");
+        success("Libro eliminado correctamente ✓");
         fetchBooks();
       } else {
         error("No se pudo eliminar el libro.");
@@ -142,7 +144,17 @@ export default function LibrosPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Print / Download button */}
+          <button
+            onClick={() => setPrintModalOpen(true)}
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold transition shadow-md"
+            title="Descargar o imprimir lista para papel"
+          >
+            <Printer className="w-4 h-4 text-amber-400" />
+            Imprimir / Descargar Lista
+          </button>
+
           <button
             onClick={() => setSearchModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white text-xs font-bold transition active:scale-95 shadow-md"
@@ -163,6 +175,46 @@ export default function LibrosPage() {
         </div>
       </div>
 
+      {/* Cultural Quick Filter Toggles */}
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setFavoriteOnly(!favoriteOnly)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
+            favoriteOnly
+              ? "bg-rose-500/20 border-rose-500/50 text-rose-300"
+              : "bg-white/5 border-white/10 text-slate-400 hover:text-white"
+          }`}
+        >
+          <Heart className={`w-3.5 h-3.5 ${favoriteOnly ? "fill-rose-500 text-rose-500" : ""}`} />
+          Solo Favoritos
+        </button>
+        <button
+          type="button"
+          onClick={() => setMarkedOnly(!markedOnly)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
+            markedOnly
+              ? "bg-amber-500/20 border-amber-500/50 text-amber-300"
+              : "bg-white/5 border-white/10 text-slate-400 hover:text-white"
+          }`}
+        >
+          <Sparkles className={`w-3.5 h-3.5 ${markedOnly ? "fill-amber-400 text-amber-400" : ""}`} />
+          Solo Me Marcó
+        </button>
+        <button
+          type="button"
+          onClick={() => setRewatchOnly(!rewatchOnly)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
+            rewatchOnly
+              ? "bg-amber-400/20 border-amber-400/50 text-amber-300"
+              : "bg-white/5 border-white/10 text-slate-400 hover:text-white"
+          }`}
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          Volver a Leer
+        </button>
+      </div>
+
       {/* Filter and Search */}
       <FilterBar
         searchPlaceholder="Buscar por título, autor, género o notas..."
@@ -174,27 +226,17 @@ export default function LibrosPage() {
         genreFilter={genreFilter}
         onGenreChange={setGenreFilter}
         genreOptions={genreOptions}
-        customFilter={
-          authorOptions.length > 0
-            ? {
-                label: "Todos los autores",
-                value: authorFilter,
-                onChange: setAuthorFilter,
-                options: authorOptions,
-              }
-            : undefined
-        }
         sortBy={sortBy}
         onSortChange={setSortBy}
         onReset={handleResetFilters}
         totalCount={books.length}
       />
 
-      {/* Grid or Empty */}
+      {/* Grid or Empty state */}
       {loading ? (
         <div className="py-24 flex flex-col items-center justify-center text-center">
-          <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin mb-3" />
-          <p className="text-sm text-slate-400">Consultando los estantes de tu biblioteca...</p>
+          <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mb-3" />
+          <p className="text-sm text-slate-400">Revisando tus estanterías...</p>
         </div>
       ) : books.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
@@ -218,8 +260,8 @@ export default function LibrosPage() {
       ) : (
         <EmptyState
           icon="📚"
-          title="Todavía no agregaste ningún libro."
-          subtitle="Empezá a construir tu archivo literario con tus lecturas más queridas."
+          title="No se encontraron libros."
+          subtitle="Probá modificando los filtros o sumá un nuevo ejemplar a tu biblioteca."
           actionText="+ REGISTRAR LIBRO"
           accentColor="amber"
           onAction={() => {
@@ -237,6 +279,21 @@ export default function LibrosPage() {
         initialData={editingBook}
       />
 
+      <BookSearchModal
+        isOpen={searchModalOpen}
+        onClose={() => setSearchModalOpen(false)}
+        onSelectBook={handleSelectBook}
+      />
+
+      {/* Print / Download Modal */}
+      <PrintDownloadModal
+        isOpen={printModalOpen}
+        onClose={() => setPrintModalOpen(false)}
+        title="Catálogo de Libros"
+        items={books}
+        category="book"
+      />
+
       <ItemDetailModal
         isOpen={Boolean(detailBook)}
         onClose={() => setDetailBook(null)}
@@ -249,6 +306,7 @@ export default function LibrosPage() {
         onDelete={() => {
           if (detailBook) setDeleteTarget(detailBook);
         }}
+        onItemUpdated={() => fetchBooks()}
       />
 
       <ConfirmDialog
@@ -257,12 +315,6 @@ export default function LibrosPage() {
         message={`¿Seguro que querés eliminar "${deleteTarget?.title}" de tu biblioteca personal?`}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteTarget(null)}
-      />
-
-      <BookSearchModal
-        isOpen={searchModalOpen}
-        onClose={() => setSearchModalOpen(false)}
-        onSelectBook={handleSelectBook}
       />
     </div>
   );

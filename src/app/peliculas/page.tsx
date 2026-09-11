@@ -7,10 +7,11 @@ import FilterBar from "@/components/FilterBar";
 import MovieModal from "@/components/MovieModal";
 import TmdbSearchModal from "@/components/TmdbSearchModal";
 import ItemDetailModal from "@/components/ItemDetailModal";
+import PrintDownloadModal from "@/components/PrintDownloadModal";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import EmptyState from "@/components/EmptyState";
 import { useToast } from "@/context/ToastContext";
-import { Film, Plus, Search, Sparkles } from "lucide-react";
+import { Film, Plus, Search, Printer, Heart, Sparkles, RotateCcw } from "lucide-react";
 
 export default function PeliculasPage() {
   const { success, error } = useToast();
@@ -22,11 +23,15 @@ export default function PeliculasPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [genreFilter, setGenreFilter] = useState("");
   const [sortBy, setSortBy] = useState("recent");
+  const [favoriteOnly, setFavoriteOnly] = useState(false);
+  const [markedOnly, setMarkedOnly] = useState(false);
+  const [rewatchOnly, setRewatchOnly] = useState(false);
 
   // Modals
   const [movieModalOpen, setMovieModalOpen] = useState(false);
   const [editingMovie, setEditingMovie] = useState<Partial<MovieItem> | null>(null);
   const [tmdbModalOpen, setTmdbModalOpen] = useState(false);
+  const [printModalOpen, setPrintModalOpen] = useState(false);
   const [detailMovie, setDetailMovie] = useState<MovieItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<MovieItem | null>(null);
 
@@ -37,6 +42,9 @@ export default function PeliculasPage() {
       if (statusFilter) params.set("status", statusFilter);
       if (genreFilter) params.set("genre", genreFilter);
       if (sortBy) params.set("sort", sortBy);
+      if (favoriteOnly) params.set("favorite", "true");
+      if (markedOnly) params.set("markedMe", "true");
+      if (rewatchOnly) params.set("rewatch", "true");
 
       const res = await fetch(`/api/movies?${params.toString()}`);
       if (res.ok) {
@@ -52,7 +60,7 @@ export default function PeliculasPage() {
 
   useEffect(() => {
     fetchMovies();
-  }, [searchQuery, statusFilter, genreFilter, sortBy]);
+  }, [searchQuery, statusFilter, genreFilter, sortBy, favoriteOnly, markedOnly, rewatchOnly]);
 
   // Extract unique genres for filter options
   const genreOptions = useMemo(() => {
@@ -76,6 +84,9 @@ export default function PeliculasPage() {
     setStatusFilter("");
     setGenreFilter("");
     setSortBy("recent");
+    setFavoriteOnly(false);
+    setMarkedOnly(false);
+    setRewatchOnly(false);
   };
 
   const handleDeleteConfirm = async () => {
@@ -134,7 +145,17 @@ export default function PeliculasPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Print / Download button */}
+          <button
+            onClick={() => setPrintModalOpen(true)}
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold transition shadow-md"
+            title="Descargar o imprimir lista para papel"
+          >
+            <Printer className="w-4 h-4 text-amber-400" />
+            Imprimir / Descargar Lista
+          </button>
+
           <button
             onClick={() => setTmdbModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white text-xs font-bold transition active:scale-95 shadow-md"
@@ -153,6 +174,46 @@ export default function PeliculasPage() {
             Agregar Película
           </button>
         </div>
+      </div>
+
+      {/* Cultural Quick Filter Toggles */}
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setFavoriteOnly(!favoriteOnly)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
+            favoriteOnly
+              ? "bg-rose-500/20 border-rose-500/50 text-rose-300"
+              : "bg-white/5 border-white/10 text-slate-400 hover:text-white"
+          }`}
+        >
+          <Heart className={`w-3.5 h-3.5 ${favoriteOnly ? "fill-rose-500 text-rose-500" : ""}`} />
+          Solo Favoritas
+        </button>
+        <button
+          type="button"
+          onClick={() => setMarkedOnly(!markedOnly)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
+            markedOnly
+              ? "bg-amber-500/20 border-amber-500/50 text-amber-300"
+              : "bg-white/5 border-white/10 text-slate-400 hover:text-white"
+          }`}
+        >
+          <Sparkles className={`w-3.5 h-3.5 ${markedOnly ? "fill-amber-400 text-amber-400" : ""}`} />
+          Solo Me Marcó
+        </button>
+        <button
+          type="button"
+          onClick={() => setRewatchOnly(!rewatchOnly)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
+            rewatchOnly
+              ? "bg-cyan-500/20 border-cyan-500/50 text-cyan-300"
+              : "bg-white/5 border-white/10 text-slate-400 hover:text-white"
+          }`}
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          Volver a ver
+        </button>
       </div>
 
       {/* Filter and Search Bar */}
@@ -200,8 +261,8 @@ export default function PeliculasPage() {
       ) : (
         <EmptyState
           icon="🎬"
-          title="Todavía no agregaste ninguna película."
-          subtitle="Empezá a construir tu archivo cinematográfico."
+          title="No se encontraron películas."
+          subtitle="Probá cambiando los filtros o agregá una nueva a tu archivo."
           actionText="+ AGREGAR PELÍCULA"
           accentColor="amber"
           onAction={() => {
@@ -225,6 +286,15 @@ export default function PeliculasPage() {
         onSelectMovie={handleSelectTmdb}
       />
 
+      {/* Print / Download Modal */}
+      <PrintDownloadModal
+        isOpen={printModalOpen}
+        onClose={() => setPrintModalOpen(false)}
+        title="Catálogo de Películas"
+        items={movies}
+        category="movie"
+      />
+
       <ItemDetailModal
         isOpen={Boolean(detailMovie)}
         onClose={() => setDetailMovie(null)}
@@ -237,6 +307,7 @@ export default function PeliculasPage() {
         onDelete={() => {
           if (detailMovie) setDeleteTarget(detailMovie);
         }}
+        onItemUpdated={() => fetchMovies()}
       />
 
       <ConfirmDialog

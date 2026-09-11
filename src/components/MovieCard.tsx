@@ -2,7 +2,7 @@
 
 import React from "react";
 import { MovieItem } from "@/lib/types";
-import { Film, Star, Clock, MoreVertical, Edit2, Trash2 } from "lucide-react";
+import { Film, Star, Clock, Edit2, Trash2, Heart, Sparkles, RotateCcw } from "lucide-react";
 
 interface MovieCardProps {
   movie: MovieItem;
@@ -52,8 +52,8 @@ export default function MovieCard({
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
 
-        {/* Status Badge */}
-        <div className="absolute top-2.5 left-2.5">
+        {/* Top Badges */}
+        <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5 items-center">
           <span
             className={`px-2 py-0.5 text-[11px] font-bold rounded-full border backdrop-blur-md shadow-md ${
               statusStyles[movie.status] || "bg-slate-800 text-slate-300 border-white/10"
@@ -61,6 +61,21 @@ export default function MovieCard({
           >
             {movie.status}
           </span>
+          {movie.isFavorite && (
+            <span className="p-1 rounded-full bg-black/70 border border-rose-500/40 text-rose-400 backdrop-blur-md shadow" title="Favorita">
+              <Heart className="w-3 h-3 fill-rose-500" />
+            </span>
+          )}
+          {movie.markedMe && (
+            <span className="p-1 rounded-full bg-black/70 border border-amber-500/40 text-amber-400 backdrop-blur-md shadow" title="Me marcó">
+              <Sparkles className="w-3 h-3 fill-amber-400" />
+            </span>
+          )}
+          {movie.rewatch && (
+            <span className="p-1 rounded-full bg-black/70 border border-cyan-500/40 text-cyan-400 backdrop-blur-md shadow" title="Volver a ver">
+              <RotateCcw className="w-3 h-3" />
+            </span>
+          )}
         </div>
 
         {/* Rating Badge */}
