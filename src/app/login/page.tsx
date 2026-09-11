@@ -22,9 +22,14 @@ function LoginForm() {
     setErrorMessage(null);
     setIsLoading(true);
 
-    const result = await login(identifier, password, remember, from || undefined);
-    if (!result.success) {
-      setErrorMessage(result.error || "Credenciales incorrectas.");
+    try {
+      const result = await login(identifier, password, remember, from || undefined);
+      if (!result.success) {
+        setErrorMessage(result.error || "Credenciales incorrectas.");
+        setIsLoading(false);
+      }
+    } catch {
+      setErrorMessage("Error de conexión al iniciar sesión. Inténtalo nuevamente.");
       setIsLoading(false);
     }
   };

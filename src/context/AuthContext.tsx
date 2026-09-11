@@ -50,7 +50,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await res.json();
       if (res.ok && data.success) {
         setUser(data.user);
-        router.push(redirectTo || "/dashboard");
+        const destination = redirectTo && redirectTo !== "/login" ? redirectTo : "/dashboard";
+        window.location.href = destination;
         return { success: true };
       }
       return { success: false, error: data.error || "Credenciales incorrectas" };
@@ -69,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await res.json();
       if (res.ok && data.success) {
         setUser(data.user);
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
         return { success: true };
       }
       return { success: false, error: data.error || "No se pudo completar el registro" };
@@ -82,8 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
       setUser(null);
-      router.push("/");
-      router.refresh();
+      window.location.href = "/";
     } catch (e) {
       console.error("Error al cerrar sesión", e);
     }
