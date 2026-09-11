@@ -5,11 +5,12 @@ import { BookItem } from "@/lib/types";
 import BookCard from "@/components/BookCard";
 import FilterBar from "@/components/FilterBar";
 import BookModal from "@/components/BookModal";
+import BookSearchModal, { BookSearchResult } from "@/components/BookSearchModal";
 import ItemDetailModal from "@/components/ItemDetailModal";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import EmptyState from "@/components/EmptyState";
 import { useToast } from "@/context/ToastContext";
-import { BookOpen, Plus } from "lucide-react";
+import { BookOpen, Plus, Sparkles } from "lucide-react";
 
 export default function LibrosPage() {
   const { success, error } = useToast();
@@ -25,6 +26,7 @@ export default function LibrosPage() {
 
   // Modals
   const [bookModalOpen, setBookModalOpen] = useState(false);
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [editingBook, setEditingBook] = useState<Partial<BookItem> | null>(null);
   const [detailBook, setDetailBook] = useState<BookItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<BookItem | null>(null);
@@ -107,6 +109,21 @@ export default function LibrosPage() {
     }
   };
 
+  const handleSelectBook = (book: BookSearchResult) => {
+    setEditingBook({
+      title: book.title,
+      author: book.author,
+      year: book.year || undefined,
+      genre: book.genre,
+      coverUrl: book.coverUrl,
+      notes: book.description || "",
+      status: "Leído",
+      readDate: new Date().toISOString(),
+      rating: 0,
+    });
+    setBookModalOpen(true);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Header with Literary aesthetic */}
@@ -125,16 +142,25 @@ export default function LibrosPage() {
           </div>
         </div>
 
-        <button
-          onClick={() => {
-            setEditingBook(null);
-            setBookModalOpen(true);
-          }}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold transition active:scale-95 shadow-lg shadow-amber-500/20"
-        >
-          <Plus className="w-4 h-4" />
-          Registrar Libro
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={() => setSearchModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white text-xs font-bold transition active:scale-95 shadow-md"
+          >
+            <Sparkles className="w-4 h-4 text-rose-400" />
+            Buscar en Catálogo
+          </button>
+          <button
+            onClick={() => {
+              setEditingBook(null);
+              setBookModalOpen(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold transition active:scale-95 shadow-lg shadow-amber-500/20"
+          >
+            <Plus className="w-4 h-4" />
+            Registrar Manual
+          </button>
+        </div>
       </div>
 
       {/* Filter and Search */}
@@ -231,6 +257,12 @@ export default function LibrosPage() {
         message={`¿Seguro que querés eliminar "${deleteTarget?.title}" de tu biblioteca personal?`}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteTarget(null)}
+      />
+
+      <BookSearchModal
+        isOpen={searchModalOpen}
+        onClose={() => setSearchModalOpen(false)}
+        onSelectBook={handleSelectBook}
       />
     </div>
   );

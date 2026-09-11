@@ -88,3 +88,33 @@
   border-bottom-color: var(--books-accent);
   box-shadow: 0 10px 30px -10px var(--books-glow);
 }
+
+/* Background Collage Animations */
+@keyframes marqueeDown {
+  0% {
+    transform: translateY(-50%);
+  }
+  100% {
+    transform: translateY(0%);
+  }
+}
+
+@keyframes marqueeUp {
+  0% {
+    transform: translateY(0%);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+.animate-marquee-down {
+  animation: marqueeDown 85s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-up {
+  animation: marqueeUp 85s linear infinite;
+  will-change: transform;
+}
+

@@ -16,6 +16,7 @@ import {
   X,
   Compass,
 } from "lucide-react";
+import SoundButton from "@/components/SoundButton";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -83,6 +84,7 @@ export default function Navbar() {
 
           {/* User Profile & Actions (Desktop) */}
           <div className="hidden md:flex items-center gap-3">
+            <SoundButton />
             {user ? (
               <div className="flex items-center gap-3">
                 <Link
@@ -131,6 +133,7 @@ export default function Navbar() {
 
           {/* Mobile menu button */}
           <div className="flex md:hidden items-center gap-2">
+            <SoundButton />
             {user && (
               <Link
                 href="/perfil"

@@ -5,11 +5,12 @@ import { VideogameItem } from "@/lib/types";
 import GameCard from "@/components/GameCard";
 import FilterBar from "@/components/FilterBar";
 import GameModal from "@/components/GameModal";
+import GameSearchModal, { GameSearchResult } from "@/components/GameSearchModal";
 import ItemDetailModal from "@/components/ItemDetailModal";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import EmptyState from "@/components/EmptyState";
 import { useToast } from "@/context/ToastContext";
-import { Gamepad2, Plus } from "lucide-react";
+import { Gamepad2, Plus, Sparkles } from "lucide-react";
 
 export default function VideojuegosPage() {
   const { success, error } = useToast();
@@ -25,6 +26,7 @@ export default function VideojuegosPage() {
 
   // Modals
   const [gameModalOpen, setGameModalOpen] = useState(false);
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [editingGame, setEditingGame] = useState<Partial<VideogameItem> | null>(null);
   const [detailGame, setDetailGame] = useState<VideogameItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<VideogameItem | null>(null);
@@ -110,6 +112,22 @@ export default function VideojuegosPage() {
     }
   };
 
+  const handleSelectGame = (game: GameSearchResult) => {
+    setEditingGame({
+      title: game.title,
+      platform: game.platform,
+      year: game.year || undefined,
+      developer: game.developer,
+      genres: game.genres,
+      coverUrl: game.coverUrl,
+      notes: game.description || "",
+      status: "Terminado",
+      playedDate: new Date().toISOString(),
+      rating: 0,
+    });
+    setGameModalOpen(true);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Header with Gamer aesthetics */}
@@ -128,16 +146,25 @@ export default function VideojuegosPage() {
           </div>
         </div>
 
-        <button
-          onClick={() => {
-            setEditingGame(null);
-            setGameModalOpen(true);
-          }}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black text-xs font-bold transition active:scale-95 shadow-lg shadow-cyan-400/20"
-        >
-          <Plus className="w-4 h-4" />
-          Registrar Videojuego
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={() => setSearchModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white text-xs font-bold transition active:scale-95 shadow-md"
+          >
+            <Sparkles className="w-4 h-4 text-cyan-400" />
+            Buscar en Catálogo
+          </button>
+          <button
+            onClick={() => {
+              setEditingGame(null);
+              setGameModalOpen(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black text-xs font-bold transition active:scale-95 shadow-lg shadow-cyan-400/20"
+          >
+            <Plus className="w-4 h-4" />
+            Registrar Manual
+          </button>
+        </div>
       </div>
 
       {/* Filter and Search */}
@@ -230,6 +257,12 @@ export default function VideojuegosPage() {
         message={`¿Seguro que querés eliminar "${deleteTarget?.title}" de tu colección de juegos?`}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteTarget(null)}
+      />
+
+      <GameSearchModal
+        isOpen={searchModalOpen}
+        onClose={() => setSearchModalOpen(false)}
+        onSelectGame={handleSelectGame}
       />
     </div>
   );

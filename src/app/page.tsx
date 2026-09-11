@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   Layers,
   History,
+  Heart,
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -140,6 +141,34 @@ export default function LandingPage() {
               <span>•</span>
               <span>Historial</span>
             </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* Collaboration banner */}
+      <section className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 my-8">
+        <div className="rounded-2xl p-6 sm:p-8 bg-gradient-to-r from-rose-500/10 via-[#12151d] to-amber-500/10 border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xl backdrop-blur-md">
+          <div className="space-y-2 text-center sm:text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold">
+              <Heart className="w-3.5 h-3.5 fill-rose-500/30" />
+              Apoyar el Proyecto
+            </div>
+            <h3 className="text-xl font-bold text-white">¿Te gusta Mi Repositorio?</h3>
+            <p className="text-xs sm:text-sm text-slate-300 max-w-md leading-relaxed">
+              Podés colaborar directamente con el desarrollo y mantenimiento del proyecto.
+            </p>
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 pt-1 text-xs text-slate-400">
+              <span>Titular: <strong className="text-white">Federico Esparza</strong></span>
+              <span>•</span>
+              <span>Alias: <strong className="text-amber-400 font-mono">Fede.e3d</strong></span>
+            </div>
+          </div>
+          <Link
+            href="/colaborar"
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-400 hover:to-amber-400 text-white font-bold text-xs uppercase tracking-wider transition active:scale-95 shadow-lg shadow-rose-500/20 shrink-0 flex items-center gap-2"
+          >
+            <Heart className="w-4 h-4 fill-white" />
+            Colaborar Ahora
           </Link>
         </div>
       </section>
